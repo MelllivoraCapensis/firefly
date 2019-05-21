@@ -1,11 +1,7 @@
 class Ship {
-	constructor (canvas, world, field, width, height) {
-        this.canvas = canvas;
-        this.ctx = this.canvas.getContext('2d');
+	constructor (world, field, width, height) {
         this.field = field;
         this.world = world;
-        this.stepY = 10;
-        this.stepX = 10;
         this.speed = {
         	x: 0.5,
             y: 0.5
@@ -14,10 +10,15 @@ class Ship {
         this.width = width;
         this.height = height;
         this.color = 'red';
+       
+        this.position = {
+        	x: 500,
+        	y: 50
+        }
 
 		this.state = {
-			x: 300,
-			y: 20,
+			x: 0,
+			y: 0,
 			moveUp: false,
 			moveDown: false,
 			moveLeft: false,
@@ -35,19 +36,41 @@ class Ship {
 	}
 
 	set x (value) {
-		this.state.x = value;
-		this.field.x = this.state.x - 300;
+		let correctValue = Math.max(0, value);
+		correctValue = Math.min(correctValue, 
+			this.world.width - this.width);
+		this.state.x = correctValue;
+		this.field.x = this.state.x - this.position.x;
 		this.world.render();
 	}
 
 	set y (value) {
-		this.state.y = value;
-		this.field.y = this.state.y - 20;
+		let correctValue = Math.max(0, value);
+		correctValue = Math.min(correctValue, 
+			this.world.height - this.height);
+		this.state.y = correctValue;
+		this.field.y = this.state.y - this.position.y;
 		this.world.render();
 	}
 
 	init () {
+        this.build();
 		this.addHandlers();
+		this.state.x = this.position.x;
+		this.state.y = this.position.y;
+	}
+
+	build () {
+		this.canvas = document.createElement('canvas');
+		this.field.box.appendChild(this.canvas);
+		this.canvas.style.position = 'absolute';
+		this.canvas.style.top = 0;
+		this.canvas.style.left = 0; 
+		this.canvas.width = this.field.width;
+		this.canvas.height = this.field.height;
+		this.canvas.tabIndex = 0;
+
+        this.ctx = this.canvas.getContext('2d');
 	}
 
 	addHandlers () {
@@ -56,13 +79,21 @@ class Ship {
 		this.addArrowDownHandler();
 		this.addArrowLeftHandler();
 		this.addArrowRightHandler();
+		this.addResizeHandler();
+	}
+
+	addResizeHandler () {
+		window.addEventListener('resize', () => {
+			this.canvas.width = window.innerWidth;
+			this.canvas.height = window.innerHeight;
+			this.render();
+		})
 	}
 
 	addArrowUpHandler () {
 		const upHandler = (e) => {
 		    if(e.key != 'ArrowUp')
 		    	return;
-            
 		    this.state.moveUp = true;
 		    this.canvas.removeEventListener('keydown',
 		    	upHandler);
@@ -212,11 +243,17 @@ class Ship {
 
 			
 	render () {
+		this.clear();
 		this.ctx.fillStyle = this.color;
         this.ctx.fillRect(this.coordsInField.left,
         	this.coordsInField.top, this.width, 
         	this.height);
 	}
+
+	clear () {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
 
 	convertX (x) {
     	return x - this.field.state.x;
