@@ -5,6 +5,7 @@ class World {
 		this.width = width;
 		this.height = height;
 		this.color = 'black';
+		this.spaceObjects = [];
 
 		this.init();
 	}
@@ -19,6 +20,7 @@ class World {
 	init () {
 		this.build();
 		this.render();
+		this.addObjects();
 	}
 
 	build () {
@@ -55,8 +57,21 @@ class World {
 	    	this.ctx.fillRect(star.x, star.y, star.size, star.size);
 	  
         })
-		
+
 	}
+
+	addObjects () {
+		const timerId = setInterval(() => {
+			const y = (this.field.state.y + this.field.height
+			    + (this.height - this.field.state.y - this.field.height)
+			    * Math.random());
+			const x = Math.random() * this.width;
+		    
+            this.spaceObjects.push(new SpaceObject(this,
+            	x, y, {x: 0, y: - 0.5}, 30));
+		 }, 400);
+	}
+	
 
 	getStars (number) {
 		const arr = [];

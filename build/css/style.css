@@ -7,11 +7,8 @@ canvas {
   padding: 0;
 }
 .wrapper {
+  margin: 0 auto;
   overflow: hidden;
-}
-.world__map {
-  width: 5000px;
-  height: 20000px;
 }
 .world__infobox {
   position: fixed;
